@@ -25,6 +25,7 @@ characters, one line.
 """
 
 import os
+import shutil
 
 LINE = (
     "My log shows 47 'I'll eat it tomorrow' promises about the same "
@@ -49,9 +50,13 @@ def main() -> None:
     os.makedirs(outdir, exist_ok=True)
     # Clean only the output folder's contents, never the folder itself:
     # the grader mounts this folder, so removing it fails the run.
+    # Stale subdirectories from an earlier run are removed too, so no
+    # leftover output can linger next to the fresh entry.
     for name in os.listdir(outdir):
         path = os.path.join(outdir, name)
-        if os.path.isfile(path) or os.path.islink(path):
+        if os.path.isdir(path) and not os.path.islink(path):
+            shutil.rmtree(path)
+        elif os.path.isfile(path) or os.path.islink(path):
             os.remove(path)
     target = os.path.join(outdir, "entry.txt")
     with open(target, "w", encoding="utf-8", newline="") as f:
